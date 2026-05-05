@@ -62,6 +62,32 @@ python -m codectx .
 The published package name is `pycodectx`, but the installed CLI command
 remains `codectx`.
 
+## Publishing
+
+Build locally:
+
+```bash
+python -m pip install --upgrade pip build
+python -m build
+```
+
+The repository includes a GitHub Actions workflow at
+`.github/workflows/release.yml` that:
+
+- builds the source distribution and wheel
+- publishes to PyPI using Trusted Publishing
+- runs when you push a tag like `v1.0.0`
+
+Typical release flow:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Before the first release, configure a PyPI Trusted Publisher for project
+`pycodectx` and point it at `.github/workflows/release.yml`.
+
 ## Usage
 
 ```bash
