@@ -36,8 +36,10 @@ setup.bat
 ./setup.sh
 ```
 
-The smart setup bootstraps a local `venv`, installs CodeCtx, creates launchers in `bin/`,
-and tries to add that `bin/` directory to your user `PATH`.
+The smart setup bootstraps a local `venv`, creates project launchers in `bin/`, and
+also prefers a stable user-level launcher location such as `~/.local/bin` when that
+directory is already on your PATH. If no suitable launcher directory is already on
+PATH, it then tries to add one automatically.
 
 ### Manual Installation
 ```bash

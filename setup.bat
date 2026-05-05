@@ -37,7 +37,7 @@ echo   1. Edit .env if needed (optional)
 echo   2. Open a new terminal if PATH was updated
 echo   3. Run: codectx .
 echo.
-echo Local launcher directory:
+echo Project launcher directory:
 echo   %CD%\bin
 echo.
 pause
