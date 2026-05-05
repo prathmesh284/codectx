@@ -111,6 +111,7 @@ Examples:
     ) -> None:
         """Handle project analysis command."""
         output_file = self.config_manager.get("output_file", "project.ctx.json")
+        auto_backup = self.config_manager.get("auto_backup", True)
         
         print(self.fmt.format_scan(f"Scanning project at: {path}"))
 
@@ -119,7 +120,7 @@ Examples:
 
         ctx = self.analysis_service.analyze_project(files, path, use_reload=use_reload)
 
-        write_output(ctx, output_file)
+        write_output(ctx, output_file, auto_backup=auto_backup)
         print(self.fmt.format_ok(f"Output written -> {output_file}"))
 
         if verbose:

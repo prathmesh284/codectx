@@ -1,8 +1,17 @@
-import json
+"""Inspect the latest rolling backup for the default output file."""
 
-backups = json.load(open('project.ctx.json.backup'))
-print('BACKUP HISTORY (Sorted by analysis_time - Newest First):')
-print(f'Total backups: {len(backups)}')
-print()
-for i, b in enumerate(backups):
-    print(f'  Backup {i+1}: {b.get("analysis_time")}')
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+
+backup_file = Path("project.ctx.json.backup")
+
+if not backup_file.exists():
+    print("No backup file found.")
+else:
+    with backup_file.open("r", encoding="utf-8") as handle:
+        backup = json.load(handle)
+    print("LATEST BACKUP:")
+    print(f"analysis_time: {backup.get('analysis_time')}")
