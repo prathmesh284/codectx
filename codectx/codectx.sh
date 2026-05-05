@@ -7,6 +7,15 @@ set -e
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+if command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+    PYTHON_BIN="python"
+else
+    echo "[ERROR] Python is not installed or not available in PATH"
+    exit 1
+fi
+
 # Show help
 show_help() {
     cat << EOF
@@ -48,9 +57,9 @@ fi
 if [ $# -eq 0 ]; then
     read -p "Enter project path (or press Enter for current): " path
     if [ -z "$path" ]; then
-        python3 "$SCRIPT_DIR/main.py" analyze .
+        "$PYTHON_BIN" -m codectx analyze .
     else
-        python3 "$SCRIPT_DIR/main.py" analyze "$path"
+        "$PYTHON_BIN" -m codectx analyze "$path"
     fi
     exit 0
 fi
@@ -79,9 +88,9 @@ if [ "$1" = "plugin" ]; then
         fi
         # Check for --dir option
         if [ "$4" = "--dir" ] && [ -n "$5" ]; then
-            python3 "$SCRIPT_DIR/main.py" plugin add "$3" --dir "$5"
+            "$PYTHON_BIN" -m codectx plugin add "$3" --dir "$5"
         else
-            python3 "$SCRIPT_DIR/main.py" plugin add "$3"
+            "$PYTHON_BIN" -m codectx plugin add "$3"
         fi
         exit 0
     fi
@@ -93,18 +102,18 @@ if [ "$1" = "plugin" ]; then
             exit 1
         fi
         if [ "$4" = "--dir" ] && [ -n "$5" ]; then
-            python3 "$SCRIPT_DIR/main.py" plugin remove "$3" --dir "$5"
+            "$PYTHON_BIN" -m codectx plugin remove "$3" --dir "$5"
         else
-            python3 "$SCRIPT_DIR/main.py" plugin remove "$3"
+            "$PYTHON_BIN" -m codectx plugin remove "$3"
         fi
         exit 0
     fi
 
     if [ "$2" = "list" ]; then
         if [ "$3" = "--dir" ] && [ -n "$4" ]; then
-            python3 "$SCRIPT_DIR/main.py" plugin list --dir "$4"
+            "$PYTHON_BIN" -m codectx plugin list --dir "$4"
         else
-            python3 "$SCRIPT_DIR/main.py" plugin list
+            "$PYTHON_BIN" -m codectx plugin list
         fi
         exit 0
     fi
@@ -117,7 +126,7 @@ fi
 if [ "$1" = "analyze" ]; then
     path="${2:-.}"
     shift 2
-    python3 "$SCRIPT_DIR/main.py" analyze "$path" "$@"
+    "$PYTHON_BIN" -m codectx analyze "$path" "$@"
     exit 0
 fi
 
@@ -126,5 +135,5 @@ path="$1"
 shift
 
 echo "[SCAN] Running CodeCtx on: $path"
-python3 "$SCRIPT_DIR/main.py" analyze "$path" "$@"
+"$PYTHON_BIN" -m codectx analyze "$path" "$@"
 echo "[OK] Analysis complete!"

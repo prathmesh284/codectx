@@ -2,8 +2,7 @@
 """High-level services for project analysis."""
 
 import os
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
 
 from ..core.utils import detect_language, clean_dependencies
@@ -71,7 +70,7 @@ class AnalysisService:
         ctx = AnalysisContext(
             project=os.path.basename(os.path.abspath(root)),
             file_tree=files,
-            analysis_time=datetime.now(ZoneInfo("Asia/Kolkata")).isoformat(),
+            analysis_time=datetime.now(timezone.utc).isoformat(),
         )
 
         # Parallel file analysis

@@ -132,3 +132,5 @@ project.ctx.json
 project.ctx.json.backup
 output/
 *.ctx.json
+.tmp-tests/
+tests/.tmp/

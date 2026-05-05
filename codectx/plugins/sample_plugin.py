@@ -1,5 +1,5 @@
 # plugins/todo_detector.py
-from plugins.base import BasePlugin
+from codectx.plugins.base import BasePlugin
 
 class Plugin(BasePlugin):
     name = "todo-detector"

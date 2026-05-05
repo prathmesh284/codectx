@@ -1,8 +1,7 @@
 # utils/__init__.py
 """Utility functions and helpers."""
 
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from datetime import datetime, timezone
 
 
 class TimestampUtils:
@@ -10,13 +9,13 @@ class TimestampUtils:
 
     @staticmethod
     def get_ist_timestamp() -> str:
-        """Get current time in Indian Standard Time (Mumbai)."""
-        return datetime.now(ZoneInfo("Asia/Kolkata")).isoformat()
+        """Get a portable UTC timestamp string."""
+        return datetime.now(timezone.utc).isoformat()
 
     @staticmethod
     def get_utc_timestamp() -> str:
         """Get current time in UTC."""
-        return datetime.utcnow().isoformat() + "Z"
+        return datetime.now(timezone.utc).isoformat()
 
 
 class FormattingUtils:

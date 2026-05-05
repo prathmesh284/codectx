@@ -3,7 +3,7 @@
 ## Quick Installation
 
 ### Prerequisites
-- Python 3.8 or higher
+- Python 3.9 or higher
 - pip package manager
 
 ### Installation Methods
@@ -49,10 +49,10 @@ This creates a configuration directory with default settings at:
 
 Output shows:
 ```
-✓ Configuration initialized at: C:\Users\YourName\AppData\Local\CodeCtx\config.json
-✓ Scanning project at: .
-✓ Found X files
-✓ Output written -> project.ctx.json
+Configuration initialized at: C:\Users\YourName\AppData\Local\CodeCtx\config.json
+[SCAN] Scanning project at: .
+[OK] Found X files
+[OK] Output written -> project.ctx.json
 ```
 
 ## Usage After Installation
@@ -161,11 +161,11 @@ codectx .
 To distribute CodeCtx as a wheel:
 
 ```bash
-pip install wheel
-python setup.py bdist_wheel
+python -m pip install build
+python -m build
 ```
 
-This creates `dist/codectx-1.0.0-py3-none-any.whl` which can be installed on any device.
+This creates wheel and source distributions in `dist/` that can be installed on Windows, macOS, or Linux with a supported Python version.
 
 ## Troubleshooting
 
@@ -173,7 +173,7 @@ This creates `dist/codectx-1.0.0-py3-none-any.whl` which can be installed on any
 If `codectx` command doesn't work:
 ```bash
 # Try running with Python module
-python -m codectx.main .
+python -m codectx .
 
 # Or install in editable mode
 pip install -e .
@@ -219,7 +219,7 @@ pip install -e ".[dev]"
 pytest
 
 # Build distribution
-python setup.py sdist bdist_wheel
+python -m build
 ```
 
 ## Support

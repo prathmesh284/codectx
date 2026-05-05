@@ -37,6 +37,7 @@ pip install codectx
 ```
 
 After installation, the tool will auto-configure on first run.
+You can also invoke it as a module on any platform with `python -m codectx`.
 
 ## Quick Start
 
@@ -44,6 +45,9 @@ After installation, the tool will auto-configure on first run.
 ```bash
 # Analyze current directory
 codectx .
+
+# Equivalent module invocation
+python -m codectx .
 
 # Analyze with verbose output
 codectx . --verbose
@@ -70,6 +74,8 @@ On first run, CodeCtx creates a configuration file at:
 - **Windows**: `%LOCALAPPDATA%\CodeCtx\config.json`
 - **macOS**: `~/.config/codectx/config.json`
 - **Linux**: `~/.config/codectx/config.json`
+
+To override the config location on any device, set `CODECTX_CONFIG_DIR`.
 
 Customize the configuration to adjust ignore patterns, output formats, and more.
 

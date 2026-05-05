@@ -45,7 +45,7 @@ if /I "%1"=="plugin" (
             set TARGET_DIR=--dir "%5"
         )
         echo [PLUGIN] Adding plugin: %3 !TARGET_DIR!
-        python "%SCRIPT_DIR%main.py" plugin add "%3" !TARGET_DIR!
+        python -m codectx plugin add "%3" !TARGET_DIR!
         goto :EOF
     )
 
@@ -65,7 +65,7 @@ if /I "%1"=="plugin" (
             set TARGET_DIR=--dir "%5"
         )
         echo [PLUGIN] Removing plugin: %3 !TARGET_DIR!
-        python "%SCRIPT_DIR%main.py" plugin remove "%3" !TARGET_DIR!
+        python -m codectx plugin remove "%3" !TARGET_DIR!
         goto :EOF
     )
 
@@ -79,7 +79,7 @@ if /I "%1"=="plugin" (
             set TARGET_DIR=--dir "%4"
         )
         echo [PLUGIN] Listing plugins !TARGET_DIR!
-        python "%SCRIPT_DIR%main.py" plugin list !TARGET_DIR!
+        python -m codectx plugin list !TARGET_DIR!
         goto :EOF
     )
 
@@ -128,7 +128,7 @@ if /I "%3"=="--verbose" (
 
 :RUN_ANALYZER
 echo [SCAN] Running CodeCtx on: "%PROJECT_PATH%"
-python "%SCRIPT_DIR%main.py" analyze "%PROJECT_PATH%" !FLAGS!
+python -m codectx analyze "%PROJECT_PATH%" !FLAGS!
 echo [OK] Analysis complete!
 goto :EOF
 
@@ -140,7 +140,7 @@ if /I "%3"=="--verbose" set FLAGS=!FLAGS! --verbose
 if /I "%4"=="--verbose" set FLAGS=!FLAGS! --verbose
 
 echo [SCAN] Running CodeCtx on: "%PROJECT_PATH%"
-python "%SCRIPT_DIR%main.py" analyze "%PROJECT_PATH%" !FLAGS!
+python -m codectx analyze "%PROJECT_PATH%" !FLAGS!
 echo [OK] Analysis complete!
 goto :EOF
 

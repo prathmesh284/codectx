@@ -12,7 +12,7 @@ REM Check if Python is installed
 python --version >nul 2>&1
 if errorlevel 1 (
     echo ERROR: Python is not installed or not in PATH
-    echo Please install Python 3.8+ from https://www.python.org/
+    echo Please install Python 3.9+ from https://www.python.org/
     pause
     exit /b 1
 )
@@ -65,7 +65,8 @@ echo.
 
 REM Initialize CodeCtx config
 echo Initializing CodeCtx configuration...
-python -c "from codectx.config_manager import get_config_manager; cm = get_config_manager(); print('✓ Config initialized')"
+python -m codectx --help >nul
+python -c "from codectx.config_manager import get_config_manager; cm = get_config_manager(); print('Config initialized')"
 echo.
 
 echo ================================================

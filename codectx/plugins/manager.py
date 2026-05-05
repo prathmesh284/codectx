@@ -4,6 +4,7 @@ import shutil
 import importlib.util
 
 PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
+PLUGIN_PACKAGE = "codectx.plugins"
 LOADED_PLUGINS = []
 
 def load_plugins():
@@ -19,8 +20,12 @@ def load_plugins():
         if f.endswith(".py") and f not in ["base.py", "manager.py", "__init__.py"]:
             module_name = f[:-3]
             path = os.path.join(PLUGIN_DIR, f)
-            spec = importlib.util.spec_from_file_location(module_name, path)
+            qualified_name = f"{PLUGIN_PACKAGE}.{module_name}"
+            spec = importlib.util.spec_from_file_location(qualified_name, path)
+            if spec is None or spec.loader is None:
+                continue
             module = importlib.util.module_from_spec(spec)
+            sys.modules[qualified_name] = module
             spec.loader.exec_module(module)
             if hasattr(module, "Plugin"):
                 LOADED_PLUGINS.append(module.Plugin())
@@ -36,7 +41,7 @@ def reload_plugins():
     for f in os.listdir(PLUGIN_DIR):
         if f.endswith(".py") and f not in ["base.py", "manager.py", "__init__.py"]:
             module_name = f[:-3]
-            sys.modules.pop(module_name, None)
+            sys.modules.pop(f"{PLUGIN_PACKAGE}.{module_name}", None)
     
     return load_plugins()
 

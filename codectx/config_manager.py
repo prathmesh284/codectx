@@ -3,6 +3,7 @@
 import os
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 # Try to load .env file
@@ -25,21 +26,43 @@ class ConfigManager:
     }
 
     def __init__(self):
-        self.config_dir = self._get_config_dir()
-        self.config_file = self.config_dir / "config.json"
-        self.plugins_dir = self.config_dir / "plugins"
+        self._set_config_paths(self._get_config_dir())
         self.ensure_initialized()
 
+    def _set_config_paths(self, config_dir: Path) -> None:
+        """Update all paths derived from the config directory."""
+        self.config_dir = config_dir
+        self.config_file = self.config_dir / "config.json"
+        self.plugins_dir = self.config_dir / "plugins"
+
     def _get_config_dir(self) -> Path:
-        """Get platform-specific config directory."""
+        """Get platform-specific config directory.
+        
+        Priority:
+        1. CODECTX_CONFIG_DIR environment variable (if set)
+        2. Platform-specific default directory
+        """
+        # Check for environment variable override
+        env_config_dir = os.getenv("CODECTX_CONFIG_DIR")
+        if env_config_dir:
+            return Path(env_config_dir.strip()).expanduser().resolve()
+        
+        # Use platform-specific defaults
         platform = sys.platform
         config_dir = self.CONFIG_DIRS.get(platform, Path.home() / ".codectx")
-        return config_dir
+        return config_dir.resolve()
 
     def ensure_initialized(self) -> None:
         """Ensure config directory and files exist (auto-init on first run)."""
-        self.config_dir.mkdir(parents=True, exist_ok=True)
-        self.plugins_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            self.config_dir.mkdir(parents=True, exist_ok=True)
+            self.plugins_dir.mkdir(parents=True, exist_ok=True)
+        except PermissionError:
+            fallback_dir = Path(tempfile.gettempdir()) / "codectx"
+            self._set_config_paths(fallback_dir.resolve())
+            self.config_dir.mkdir(parents=True, exist_ok=True)
+            self.plugins_dir.mkdir(parents=True, exist_ok=True)
+            print(f"Config directory not writable, using fallback: {self.config_dir}")
 
         # Create default config if it doesn't exist
         if not self.config_file.exists():
@@ -70,7 +93,7 @@ class ConfigManager:
         with open(self.config_file, "w", encoding="utf-8") as f:
             json.dump(default_config, f, indent=2)
 
-        print(f"✓ Configuration initialized at: {self.config_file}")
+        print(f"Configuration initialized at: {self.config_file}")
 
     def load_config(self) -> dict:
         """Load configuration from file."""
@@ -111,3 +134,12 @@ def get_config_manager() -> ConfigManager:
     if _config_manager is None:
         _config_manager = ConfigManager()
     return _config_manager
+
+
+def reset_config_manager() -> None:
+    """Reset the cached config manager instance.
+
+    This is primarily useful in tests that change environment variables.
+    """
+    global _config_manager
+    _config_manager = None

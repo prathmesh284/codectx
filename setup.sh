@@ -12,7 +12,7 @@ echo ""
 # Check if Python is installed
 if ! command -v python3 &> /dev/null; then
     echo "ERROR: Python 3 is not installed"
-    echo "Please install Python 3.8+ using:"
+    echo "Please install Python 3.9+ using:"
     echo "  macOS: brew install python3"
     echo "  Ubuntu: sudo apt-get install python3 python3-venv"
     echo "  Fedora: sudo dnf install python3"
@@ -65,7 +65,8 @@ echo ""
 
 # Initialize CodeCtx config
 echo "Initializing CodeCtx configuration..."
-python3 -c "from codectx.config_manager import get_config_manager; cm = get_config_manager(); print('✓ Config initialized')"
+python3 -m codectx --help >/dev/null
+python3 -c "from codectx.config_manager import get_config_manager; cm = get_config_manager(); print('Config initialized')"
 echo ""
 
 echo "================================================"
