@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pycodectx"
-version = "1.0.0"
+version = "1.0.2"
 description = "Project context extraction tool for code analysis and AI workflows"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -50,7 +50,7 @@ Issues = "https://github.com/prathmesh284/codectx/issues"
 
 [project.scripts]
 codectx = "codectx.main:main"
-codectx-setup = "bootstrap:main"
+codectx-setup = "codectx.setup:main"
 
 [tool.setuptools]
 include-package-data = true

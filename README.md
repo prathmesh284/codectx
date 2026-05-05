@@ -15,25 +15,33 @@ and lightweight documentation.
 
 ## Installation
 
-### Option 1: local bootstrap
+### Setup
 
-Use the bundled setup script when you want a self-contained local install with
-its own virtual environment and launchers.
+Use the single supported setup command:
 
 ```bash
-# Windows
-setup.bat
-
-# macOS / Linux
-./setup.sh
+codectx-setup
 ```
 
-The bootstrap script:
+It:
 
+- deploys or refreshes the app under the standard tool directory
 - creates `venv/` if needed
+- installs runtime dependencies from `requirements.txt`
 - generates launchers in `bin/`
 - prefers a user launcher directory already on `PATH`, such as `~/.local/bin`
 - attempts to update `PATH` when necessary
+
+Default deployment targets:
+
+- Windows: `C:\tools\codectx`
+- macOS / Linux: `~/tools/codectx`
+
+You can override the destination:
+
+```bash
+codectx-setup --target /custom/path/codectx
+```
 
 ### Option 2: standard Python install
 
@@ -53,14 +61,8 @@ For local development:
 pip install -e .
 ```
 
-You can also run it directly with:
-
-```bash
-python -m codectx .
-```
-
 The published package name is `pycodectx`, but the installed CLI command
-remains `codectx`.
+remains `codectx`, and setup remains `codectx-setup`.
 
 ## Publishing
 
@@ -81,8 +83,8 @@ The repository includes a GitHub Actions workflow at
 Typical release flow:
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
 Before the first release, configure a PyPI Trusted Publisher for project

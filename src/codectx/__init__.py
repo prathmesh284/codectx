@@ -1,8 +1,13 @@
 """CodeCtx package metadata and lazy exports."""
 
+from importlib.metadata import PackageNotFoundError, version
 from importlib import import_module
 
-__version__ = "1.0.0"
+try:
+    __version__ = version("pycodectx")
+except PackageNotFoundError:
+    __version__ = "1.0.2"
+
 __all__ = [
     "AnalysisContext",
     "FileAnalysis",

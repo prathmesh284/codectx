@@ -22,7 +22,7 @@ def main() -> int:
     ensure_env_file()
     ensure_virtualenv()
     python_bin = get_venv_python()
-    validate_runtime(python_bin)
+    ensure_runtime_dependencies(python_bin)
     launcher_dirs = create_launchers(python_bin)
     configure_path(launcher_dirs)
     warm_up_cli(python_bin)
@@ -59,12 +59,43 @@ def get_venv_python() -> Path:
     return python_bin
 
 
-def validate_runtime(python_bin: Path) -> None:
+def ensure_runtime_dependencies(python_bin: Path) -> None:
     print("[INFO] Preparing the local virtual environment")
     if runtime_dependencies_available(python_bin):
-        print("[OK] Optional runtime dependencies are available")
+        print("[OK] Runtime dependencies are available")
+        return
+
+    requirements_file = PROJECT_ROOT / "requirements.txt"
+    if requirements_file.exists():
+        print("[INFO] Installing runtime dependencies from requirements.txt")
+        run(
+            [
+                str(python_bin),
+                "-m",
+                "pip",
+                "install",
+                "--disable-pip-version-check",
+                "-r",
+                str(requirements_file),
+            ]
+        )
     else:
-        print("[WARN] Optional package 'python-dotenv' is not installed; continuing without it")
+        print("[INFO] Installing fallback runtime dependency: python-dotenv")
+        run(
+            [
+                str(python_bin),
+                "-m",
+                "pip",
+                "install",
+                "--disable-pip-version-check",
+                "python-dotenv>=0.19.0",
+            ]
+        )
+
+    if runtime_dependencies_available(python_bin):
+        print("[OK] Runtime dependencies installed")
+    else:
+        print("[WARN] Runtime dependency installation did not complete cleanly")
 
 
 def runtime_dependencies_available(python_bin: Path) -> bool:

@@ -1,19 +1,27 @@
-# main.py
 """CodeCtx main entry point."""
+
+from __future__ import annotations
+
+import sys
 
 from .config_manager import get_config_manager
 from .cli import CLIHandler
 
 
-def main():
+def main(argv: list[str] | None = None) -> int:
     """Main application entry point."""
-    # Initialize configuration (auto-config on first run)
-    get_config_manager()
+    args = list(sys.argv[1:] if argv is None else argv)
 
-    # Run CLI handler
+    if args and args[0] == "setup":
+        from .setup import main as setup_main
+
+        return setup_main(args[1:])
+
+    get_config_manager()
     handler = CLIHandler()
-    handler.run()
+    handler.run(args)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
