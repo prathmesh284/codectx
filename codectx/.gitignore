@@ -93,7 +93,7 @@ celerybeat.pid
 
 # Environments
 .env
-.env.example
+!.env.example
 .venv
 env/
 venv/
@@ -134,3 +134,4 @@ output/
 *.ctx.json
 .tmp-tests/
 tests/.tmp/
+bin/

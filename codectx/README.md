@@ -25,15 +25,23 @@
 
 ## Installation
 
-### Option 1: Install from source (Development)
+### Smart Setup
 ```bash
 cd /path/to/codectx
-pip install -e .
+
+# Windows
+setup.bat
+
+# macOS / Linux
+./setup.sh
 ```
 
-### Option 2: Install from package
+The smart setup bootstraps a local `venv`, installs CodeCtx, creates launchers in `bin/`,
+and tries to add that `bin/` directory to your user `PATH`.
+
+### Manual Installation
 ```bash
-pip install codectx
+pip install -e .
 ```
 
 After installation, the tool will auto-configure on first run.
@@ -79,6 +87,17 @@ To override the config location on any device, set `CODECTX_CONFIG_DIR`.
 
 Customize the configuration to adjust ignore patterns, output formats, and more.
 
+## Layout
+
+The self-contained project layout is:
+
+```text
+C:\tools\codectx
+  bin/        # generated command launchers
+  src/        # Python package source
+  venv/       # local virtual environment
+```
+
 ## Output
 
 CodeCtx generates a comprehensive JSON file (`project.ctx.json`) containing:
@@ -89,10 +108,6 @@ CodeCtx generates a comprehensive JSON file (`project.ctx.json`) containing:
 - Detected data flows
 - Security issues
 - File summaries
-
-## Architecture
-
-See [README_ARCHITECTURE.md](codectx/README_ARCHITECTURE.md) for detailed module documentation.
 
 ## License
 
