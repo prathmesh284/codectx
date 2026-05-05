@@ -41,6 +41,12 @@ The bootstrap script:
 pip install .
 ```
 
+After publishing to PyPI:
+
+```bash
+pip install pycodectx
+```
+
 For local development:
 
 ```bash
@@ -52,6 +58,9 @@ You can also run it directly with:
 ```bash
 python -m codectx .
 ```
+
+The published package name is `pycodectx`, but the installed CLI command
+remains `codectx`.
 
 ## Usage
 
@@ -120,4 +129,3 @@ CodeCtx is released under the MIT License. See [LICENSE](LICENSE).
 
 - Repository: <https://github.com/prathmesh284/codectx>
 - Issues: <https://github.com/prathmesh284/codectx/issues>
-
