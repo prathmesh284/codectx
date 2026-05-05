@@ -1,12 +1,13 @@
 import re
 import ast
 
+
 def extract_functions(code, lang):
     if lang == "python":
         try:
             tree = ast.parse(code)
             return [n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]
-        except:
+        except SyntaxError:
             return []
 
     patterns = {
@@ -16,7 +17,7 @@ def extract_functions(code, lang):
         "go": r'func\s+(\w+)',
         "rust": r'fn\s+(\w+)',
         "cpp": r'\w+\s+(\w+)\s*\(.*\)\s*{',
-        "c": r'\w+\s+(\w+)\s*\(.*\)\s*{'
+        "c": r'\w+\s+(\w+)\s*\(.*\)\s*{',
     }
 
     funcs = set()
@@ -33,9 +34,8 @@ def extract_functions(code, lang):
     blacklist = {"if", "for", "while", "switch"}
     return [f for f in funcs if f not in blacklist]
 
-def extract_function_details(code):
-    import ast
 
+def extract_function_details(code):
     results = []
 
     try:
@@ -49,10 +49,10 @@ def extract_function_details(code):
                     "name": node.name,
                     "inputs": inputs,
                     "output": "unknown",
-                    "description": "function logic"
+                    "description": "function logic",
                 })
 
-    except:
+    except SyntaxError:
         pass
 
     return results

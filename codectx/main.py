@@ -8,8 +8,8 @@ from .cli import CLIHandler
 def main():
     """Main application entry point."""
     # Initialize configuration (auto-config on first run)
-    config_manager = get_config_manager()
-    
+    get_config_manager()
+
     # Run CLI handler
     handler = CLIHandler()
     handler.run()
