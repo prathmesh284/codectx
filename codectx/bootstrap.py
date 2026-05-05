@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import os
-import platform
 import shutil
 import subprocess
 import sys
@@ -22,7 +21,7 @@ def main() -> int:
     ensure_env_file()
     ensure_virtualenv()
     python_bin = get_venv_python()
-    install_project(python_bin)
+    validate_runtime(python_bin)
     create_launchers(python_bin)
     configure_path()
     warm_up_cli(python_bin)
@@ -57,35 +56,24 @@ def get_venv_python() -> Path:
     return python_bin
 
 
-def install_project(python_bin: Path) -> None:
-    print("[INFO] Installing CodeCtx into the local virtual environment")
-    try:
-        run(
-            [
-                str(python_bin),
-                "-m",
-                "pip",
-                "install",
-                "--upgrade",
-                "pip",
-                "setuptools",
-                "wheel",
-            ]
-        )
-    except subprocess.CalledProcessError:
-        print("[WARN] Skipping packaging-tool upgrade; continuing with local install")
+def validate_runtime(python_bin: Path) -> None:
+    print("[INFO] Preparing the local virtual environment")
+    if runtime_dependencies_available(python_bin):
+        print("[OK] Optional runtime dependencies are available")
+    else:
+        print("[WARN] Optional package 'python-dotenv' is not installed; continuing without it")
 
-    run(
-        [
-            str(python_bin),
-            "-m",
-            "pip",
-            "install",
-            "--no-build-isolation",
-            "-e",
-            str(PROJECT_ROOT),
-        ]
+
+def runtime_dependencies_available(python_bin: Path) -> bool:
+    command = [str(python_bin), "-c", "import dotenv"]
+    result = subprocess.run(
+        command,
+        cwd=PROJECT_ROOT,
+        env=project_env(),
+        check=False,
+        capture_output=True,
     )
+    return result.returncode == 0
 
 
 def create_launchers(python_bin: Path) -> None:
@@ -100,12 +88,22 @@ def create_windows_launchers(python_bin: Path) -> None:
     cmd_launcher.write_text(
         "@echo off\n"
         'set "CODECTX_PROJECT_ROOT=%~dp0.."\n'
-        f'"{python_bin}" -m codectx %*\n',
+        "pushd \"%CODECTX_PROJECT_ROOT%\"\n"
+        'set "PYTHONPATH=src"\n'
+        f'"{python_bin}" -m codectx %*\n'
+        "set CODECTX_EXIT=%ERRORLEVEL%\n"
+        "popd\n"
+        "exit /b %CODECTX_EXIT%\n",
         encoding="utf-8",
     )
     ps1_launcher.write_text(
         "$ProjectRoot = Split-Path -Parent $PSScriptRoot\n"
-        f'& "{python_bin}" -m codectx @args\n',
+        "Push-Location $ProjectRoot\n"
+        '$env:PYTHONPATH = "src"' "\n"
+        f'& "{python_bin}" -m codectx @args\n'
+        "$exitCode = $LASTEXITCODE\n"
+        "Pop-Location\n"
+        "exit $exitCode\n",
         encoding="utf-8",
     )
 
@@ -115,6 +113,8 @@ def create_posix_launcher(python_bin: Path) -> None:
     posix_launcher.write_text(
         "#!/usr/bin/env sh\n"
         'PROJECT_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"\n'
+        'cd "$PROJECT_ROOT"\n'
+        'export PYTHONPATH="src"\n'
         f'"{python_bin}" -m codectx "$@"\n',
         encoding="utf-8",
     )
@@ -137,23 +137,26 @@ def add_windows_path(bin_dir: Path) -> None:
     if bin_text.lower() in current.lower():
         print("[OK] bin directory already available in current PATH")
         return
-
-    powershell = shutil.which("powershell") or shutil.which("pwsh")
-    if powershell is None:
-        print(f"[WARN] Could not update user PATH automatically. Add this manually: {bin_text}")
-        return
-
-    script = (
-        "$path = [Environment]::GetEnvironmentVariable('Path', 'User');"
-        f"$bin = '{bin_text}';"
-        "if (-not $path) { $path = $bin } "
-        "elseif ($path -notlike \"*\" + $bin + \"*\") { $path = $path + ';' + $bin };"
-        "[Environment]::SetEnvironmentVariable('Path', $path, 'User')"
-    )
     try:
-        run([powershell, "-NoProfile", "-Command", script])
+        import winreg
+
+        with winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            r"Environment",
+            0,
+            winreg.KEY_READ | winreg.KEY_SET_VALUE,
+        ) as key:
+            try:
+                stored_path = winreg.QueryValueEx(key, "Path")[0]
+            except FileNotFoundError:
+                stored_path = ""
+
+            entries = [entry for entry in stored_path.split(";") if entry]
+            if not any(entry.lower() == bin_text.lower() for entry in entries):
+                entries.append(bin_text)
+                winreg.SetValueEx(key, "Path", 0, winreg.REG_EXPAND_SZ, ";".join(entries))
         print(f"[OK] Added {bin_text} to user PATH")
-    except subprocess.CalledProcessError:
+    except OSError:
         print(f"[WARN] Could not update user PATH automatically. Add this manually: {bin_text}")
 
 
@@ -184,7 +187,8 @@ def warm_up_cli(python_bin: Path) -> None:
 
 def project_env() -> dict[str, str]:
     env = os.environ.copy()
-    env.setdefault("CODECTX_CONFIG_DIR", str(PROJECT_ROOT / ".config"))
+    env.setdefault("CODECTX_CONFIG_DIR", ".config")
+    env["PYTHONPATH"] = "src"
     return env
 
 

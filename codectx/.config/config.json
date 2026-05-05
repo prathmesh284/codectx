@@ -1,0 +1,23 @@
+{
+  "project_root": "./",
+  "output_file": "project.ctx.json",
+  "ignore_dirs": [
+    "venv",
+    "node_modules",
+    ".git",
+    "__pycache__",
+    ".env",
+    "dist",
+    "build",
+    ".pytest_cache",
+    ".mypy_cache"
+  ],
+  "ignore_files": [
+    ".ctx.json",
+    ".DS_Store",
+    "*.pyc"
+  ],
+  "verbose": false,
+  "plugins_enabled": true,
+  "auto_backup": true
+}
