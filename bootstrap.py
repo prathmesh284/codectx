@@ -265,7 +265,6 @@ def warm_up_cli(python_bin: Path) -> None:
 
 def project_env() -> dict[str, str]:
     env = os.environ.copy()
-    env.setdefault("CODECTX_CONFIG_DIR", ".config")
     env["PYTHONPATH"] = str(SOURCE_DIR)
     return env
 

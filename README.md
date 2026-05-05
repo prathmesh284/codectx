@@ -1,34 +1,26 @@
-# CodeCtx - Advanced Code Analysis Tool
+# CodeCtx
 
-**CodeCtx** is a powerful code analysis tool that automatically extracts project context including file structures, functions, APIs, dependencies, and more—perfect for feeding into AI models or documentation generation.
+CodeCtx scans a project directory and writes a `project.ctx.json` file with
+high-signal context that is useful for AI workflows, code reviews, onboarding,
+and lightweight documentation.
 
-## Features
+## What it does
 
-✨ **Smart Code Analysis**
-- Extracts functions, APIs, dependencies, and environment variables
-- Detects security issues and data flows
-- Generates file summaries automatically
-- Supports multiple languages
-
-🔌 **Extensible Plugin System**
-- Create custom extractors and processors
-- Easy plugin management
-
-📦 **Automatic Configuration**
-- Auto-initializes on first run
-- Platform-specific config directories
-- Zero manual setup required
-
-🚀 **Easy Installation**
-- Single command installation
-- Works on Windows, macOS, Linux
+- Scans a target directory and builds a project context snapshot.
+- Extracts file structure, functions, APIs, dependencies, environment hints,
+  summaries, and plugin output.
+- Writes the result into the directory where you run the command.
+- Keeps a single rolling backup in `project.ctx.json.backup`.
+- Auto-initializes its config directory on first run.
 
 ## Installation
 
-### Smart Setup
-```bash
-cd /path/to/codectx
+### Option 1: local bootstrap
 
+Use the bundled setup script when you want a self-contained local install with
+its own virtual environment and launchers.
+
+```bash
 # Windows
 setup.bat
 
@@ -36,85 +28,96 @@ setup.bat
 ./setup.sh
 ```
 
-The smart setup bootstraps a local `venv`, creates project launchers in `bin/`, and
-also prefers a stable user-level launcher location such as `~/.local/bin` when that
-directory is already on your PATH. If no suitable launcher directory is already on
-PATH, it then tries to add one automatically.
+The bootstrap script:
 
-### Manual Installation
+- creates `venv/` if needed
+- generates launchers in `bin/`
+- prefers a user launcher directory already on `PATH`, such as `~/.local/bin`
+- attempts to update `PATH` when necessary
+
+### Option 2: standard Python install
+
+```bash
+pip install .
+```
+
+For local development:
+
 ```bash
 pip install -e .
 ```
 
-After installation, the tool will auto-configure on first run.
-You can also invoke it as a module on any platform with `python -m codectx`.
+You can also run it directly with:
 
-## Quick Start
-
-### Basic Usage
 ```bash
-# Analyze current directory
-codectx .
-
-# Equivalent module invocation
 python -m codectx .
-
-# Analyze with verbose output
-codectx . --verbose
-
-# Analyze specific directory
-codectx /path/to/project
 ```
 
-### Plugin Management
+## Usage
+
 ```bash
-# List available plugins
+# Analyze the current directory
+codectx .
+
+# Analyze a specific project
+codectx /path/to/project
+
+# Show extra detail
+codectx . --verbose
+
+# Plugin management
 codectx plugin list
-
-# Add a custom plugin
-codectx plugin add /path/to/my_plugin.py
-
-# Remove a plugin
+codectx plugin add /path/to/plugin.py
 codectx plugin remove my_plugin
 ```
 
+## Output behavior
+
+- `project.ctx.json` is written into the directory you analyze.
+- If that file already exists, CodeCtx copies the previous version to
+  `project.ctx.json.backup`.
+- Only the latest backup is kept.
+
 ## Configuration
 
-On first run, CodeCtx creates a configuration file at:
-- **Windows**: `%LOCALAPPDATA%\CodeCtx\config.json`
-- **macOS**: `~/.config/codectx/config.json`
-- **Linux**: `~/.config/codectx/config.json`
+CodeCtx stores configuration in a per-user directory by default:
 
-To override the config location on any device, set `CODECTX_CONFIG_DIR`.
+- Windows: `%LOCALAPPDATA%\CodeCtx`
+- macOS: `~/.config/codectx`
+- Linux: `~/.config/codectx`
 
-Customize the configuration to adjust ignore patterns, output formats, and more.
+To override that location, set `CODECTX_CONFIG_DIR`.
 
-## Layout
+Example:
 
-The self-contained project layout is:
-
-```text
-C:\tools\codectx
-  bin/        # generated command launchers
-  src/        # Python package source
-  venv/       # local virtual environment
+```bash
+CODECTX_CONFIG_DIR=/custom/path/codectx
 ```
 
-## Output
+The generated `config.json` controls values such as:
 
-CodeCtx generates a comprehensive JSON file (`project.ctx.json`) containing:
-- File tree structure
-- Extracted functions and APIs
-- Dependencies and imports
-- Environment variables
-- Detected data flows
-- Security issues
-- File summaries
+- `output_file`
+- `ignore_dirs`
+- `ignore_files`
+- `plugins_enabled`
+- `auto_backup`
+
+## Project layout
+
+```text
+codectx/
+  src/codectx/   Python package
+  bin/           generated launchers
+  venv/          local virtual environment created by bootstrap
+  bootstrap.py   cross-platform setup entry
+```
 
 ## License
 
-MIT License - see LICENSE file for details
+CodeCtx is released under the MIT License. See [LICENSE](LICENSE).
 
-## Contributing
+## Support
 
-Contributions are welcome! Please submit pull requests or open issues on GitHub.
+- Repository: <https://github.com/prathmesh284/codectx>
+- Issues: <https://github.com/prathmesh284/codectx/issues>
+

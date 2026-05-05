@@ -5,14 +5,23 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "codectx"
 version = "1.0.0"
-description = "Advanced code analysis tool for project context extraction"
+description = "Project context extraction tool for code analysis and AI workflows"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
-    {name = "Prathmesh", email = "prathmesh@example.com"},
+    {name = "Prathmesh"},
 ]
-keywords = ["code-analysis", "context-extraction", "project-analysis", "code-intelligence"]
+maintainers = [
+    {name = "Prathmesh"},
+]
+keywords = [
+    "code-analysis",
+    "context-extraction",
+    "developer-tools",
+    "documentation",
+    "project-analysis",
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -23,6 +32,9 @@ classifiers = [
     "Operating System :: OS Independent",
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
+    "Environment :: Console",
+    "Topic :: Documentation",
+    "Topic :: Software Development",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Software Development :: Quality Assurance",
 ]
@@ -32,7 +44,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/prathmesh284/codectx"
-Documentation = "https://github.com/prathmesh284/codectx/wiki"
+Documentation = "https://github.com/prathmesh284/codectx#readme"
 Repository = "https://github.com/prathmesh284/codectx.git"
 Issues = "https://github.com/prathmesh284/codectx/issues"
 
@@ -43,6 +55,7 @@ codectx-setup = "bootstrap:main"
 [tool.setuptools]
 include-package-data = true
 py-modules = ["bootstrap"]
+license-files = ["LICENSE"]
 
 [tool.setuptools.package-dir]
 "" = "src"
