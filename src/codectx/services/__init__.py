@@ -2,8 +2,9 @@
 """High-level services for project analysis."""
 
 import os
+import sys
 from datetime import datetime, timezone
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from ..core.utils import detect_language, clean_dependencies
 from ..core.scanner import build_file_tree
@@ -31,37 +32,49 @@ class AnalysisService:
         try:
             with open(file, "r", encoding="utf-8") as f:
                 code = f.read()
-        except Exception:
+        except UnicodeDecodeError:
+            # Skip files with encoding issues
+            return None
+        except FileNotFoundError:
+            # File was deleted before analysis
+            return None
+        except IOError as e:
+            print(f"[WARN] Cannot read {file}: {e}", file=sys.stderr)
             return None
 
-        lang = detect_language(file)
+        try:
+            lang = detect_language(file)
 
-        # Core analysis
-        funcs = extract_functions(code, lang)
-        deps = clean_dependencies(extract_dependencies(code))
-        apis = extract_apis(code)
-        flow = detect_data_flow(code, file)
-        secrets = detect_secrets(code)
-        envs = extract_env(code)
-        func_detail = extract_function_details(code)
-        auth = detect_auth(code)
-        error_info = analyze_errors(code, file, lang)
-        plugin_results = run_plugins(file, code, lang, use_reload)
+            # Core analysis
+            funcs = extract_functions(code, lang)
+            deps = clean_dependencies(extract_dependencies(code))
+            apis = extract_apis(code)
+            flow = detect_data_flow(code, file)
+            secrets = detect_secrets(code)
+            envs = extract_env(code)
+            func_detail = extract_function_details(code)
+            auth = detect_auth(code)
+            error_info = analyze_errors(code, file, lang)
+            plugin_results = run_plugins(file, code, lang, use_reload)
 
-        return FileAnalysis(
-            file=file,
-            functions=funcs,
-            dependencies=deps,
-            apis=apis,
-            flow=flow,
-            secrets=secrets,
-            env=envs,
-            summary=generate_summary(file, lang, funcs, deps, apis),
-            plugins=plugin_results,
-            function_details=func_detail,
-            auth_info=auth,
-            error_analysis=error_info,
-        )
+            return FileAnalysis(
+                file=file,
+                functions=funcs,
+                dependencies=deps,
+                apis=apis,
+                flow=flow,
+                secrets=secrets,
+                env=envs,
+                summary=generate_summary(file, lang, funcs, deps, apis),
+                plugins=plugin_results,
+                function_details=func_detail,
+                auth_info=auth,
+                error_analysis=error_info,
+            )
+        except Exception as e:
+            # Log unexpected errors during analysis
+            print(f"[WARN] Error analyzing {file}: {type(e).__name__}: {str(e)[:100]}", file=sys.stderr)
+            return None
 
     def analyze_project(
         self, files, root: str, use_reload: bool = False
@@ -73,16 +86,32 @@ class AnalysisService:
             analysis_time=datetime.now(timezone.utc).isoformat(),
         )
 
-        # Parallel file analysis
-        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            results = list(
-                filter(
-                    None,
-                    executor.map(
-                        lambda f: self.analyze_single_file(f, use_reload), files
-                    ),
-                )
-            )
+        # Parallel file analysis with keyboard interrupt support
+        results = []
+        try:
+            with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                # Submit all tasks and process as they complete
+                futures = {executor.submit(self.analyze_single_file, f, use_reload): f for f in files}
+                completed = 0
+                
+                for future in as_completed(futures, timeout=300):  # 5 minute per-file timeout
+                    try:
+                        result = future.result(timeout=60)  # 1 minute per-file result timeout
+                        if result:
+                            results.append(result)
+                        completed += 1
+                        # Progress indicator
+                        if completed % max(1, len(files) // 10) == 0 or completed == len(files):
+                            print(f"[PROGRESS] Analyzed {completed}/{len(files)} files", file=sys.stderr)
+                    except TimeoutError:
+                        f = futures[future]
+                        print(f"[WARN] Analysis timeout for {f}", file=sys.stderr)
+                    except Exception as e:
+                        f = futures[future]
+                        print(f"[WARN] Error analyzing {f}: {str(e)[:100]}", file=sys.stderr)
+        except KeyboardInterrupt:
+            print(f"\n[INFO] Analysis interrupted by user. Processed {len(results)}/{len(files)} files.", file=sys.stderr)
+            # Continue with partial results
 
         # Aggregate results
         for r in results:

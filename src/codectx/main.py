@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 import sys
+import warnings
 
 from .config_manager import get_config_manager
 from .cli import CLIHandler
+
+# Suppress SyntaxWarnings about invalid escape sequences in analyzed code
+warnings.filterwarnings("ignore", category=SyntaxWarning, message=r".*invalid escape sequence.*")
 
 
 def main(argv: list[str] | None = None) -> int:
